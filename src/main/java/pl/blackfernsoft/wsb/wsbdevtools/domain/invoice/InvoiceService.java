@@ -7,20 +7,32 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Disclaimer: This code is just an example of bad practices used as exercise to learn basic clean code rules
+ * and refactorization.
+ */
 @Service
 @RequiredArgsConstructor
 public class InvoiceService {
 
-    private final InvoiceRepository repository;
+    private final InvoiceRepository repo;
 
+    /**
+     * find all invoices
+     *
+     * @return
+     */
     public List<Invoice> findAll() {
-        return new ArrayList<>(repository.findAll());
+        return new ArrayList<>(repo.findAll());
     }
 
     public Invoice inv(Integer invoiceId) {
-        return repository.findById(invoiceId);
+        return repo.findById(invoiceId);
     }
 
+    /**
+     * This method calculates something.
+     */
     public BigDecimal calc(Integer invoiceId) {
         Invoice a = inv(invoiceId);
         BigDecimal sum = BigDecimal.ZERO;
@@ -30,29 +42,32 @@ public class InvoiceService {
         return sum;
     }
 
-    public BigDecimal calculateNetOrGross(boolean netOrGros) {
-        if (netOrGros) {
-            List<Invoice> invoices = repository.findAll();
-            BigDecimal sumInvoices = BigDecimal.ZERO;
+    /**
+     * Calculate sum of all invoices net or gross
+     */
+    public BigDecimal calculateNetOrGross(boolean netOrGross) {
+        if (netOrGross) {
+            List<Invoice> invoices = repo.findAll();
+            BigDecimal sumB = BigDecimal.ZERO;
             for (Invoice invoice : invoices) {
-                BigDecimal sumItems = BigDecimal.ZERO;
+                BigDecimal sumA = BigDecimal.ZERO;
                 for (Invoice.InvoiceItem item : invoice.getItems()) {
-                    sumItems = sumItems.add(item.getAmountNet());
+                    sumA = sumA.add(item.getAmountNet());
                 }
-                sumInvoices = sumInvoices.add(sumItems);
+                sumB = sumB.add(sumA);
             }
-            return sumInvoices;
+            return sumB;
         } else {
-            List<Invoice> invoices = repository.findAll();
-            BigDecimal sumInvoices = BigDecimal.ZERO;
+            List<Invoice> invoices = repo.findAll();
+            BigDecimal sumC = BigDecimal.ZERO;
             for (Invoice invoice : invoices) {
                 BigDecimal sum = BigDecimal.ZERO;
                 for (Invoice.InvoiceItem item : invoice.getItems()) {
                     sum = sum.add(item.getAmountNet().add(item.getAmountNet().multiply(item.getVarPercentage()).divide(BigDecimal.valueOf(100))));
                 }
-                sumInvoices = sumInvoices.add(sum);
+                sumC = sumC.add(sum);
             }
-            return sumInvoices;
+            return sumC;
         }
     }
 }
